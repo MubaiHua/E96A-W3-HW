@@ -11,7 +11,12 @@ public class PlayerControl : MonoBehaviour
     [SerializeField]
     float speed = 10f;
     [SerializeField]
-    float bulletSpeed = 100f;
+    float originalSpeed = 10f;
+    bool isDashing = false;
+    [SerializeField]
+    float bulletSpeed = 500f;
+    [SerializeField]
+    float dashSpeedMultiplier = 3f;
     [SerializeField]
     float jumpHeight = 5f;
     bool onGround;
@@ -21,7 +26,7 @@ public class PlayerControl : MonoBehaviour
     {
         rb = gameObject.GetComponent<Rigidbody>();
         onGround = true;
-
+        speed = originalSpeed;
     }
 
     // Update is called once per frame
@@ -40,11 +45,35 @@ public class PlayerControl : MonoBehaviour
         rb.velocity *= speed;
     }
 
+    void OnDash()
+    {
+        if (!isDashing)
+        {
+            StartCoroutine(Dash());
+        }
+    }
+
+    IEnumerator Dash()
+    {
+        isDashing = true;
+
+        // Increase speed for dash
+        speed *= dashSpeedMultiplier;
+
+        // Wait for a short duration
+        yield return new WaitForSeconds(0.5f); // Adjust the duration as needed
+
+        // Reset speed after dash
+        speed = originalSpeed;
+
+        isDashing = false;
+    }
+
     void OnFire() // this action will be called when fire action is triggered
     {
         Debug.Log("Fire");
 
-        GameObject bulletInstance = Instantiate(bullet, transform.position + 1f * transform.forward, Quaternion.identity);
+        GameObject bulletInstance = Instantiate(bullet, transform.position + 1.5f * transform.forward, Quaternion.identity);
         Rigidbody bulletRigidBody = bulletInstance.GetComponent<Rigidbody>();
 
         bulletRigidBody.AddForce(bulletSpeed * transform.forward);
